@@ -1,0 +1,212 @@
+/* ===================================
+   CV GENERATOR — FEUILLE DE STYLE
+   Esthétique : éditoriale / élégante
+   =================================== */
+ 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+ 
+/* ── Variables ── */
+:root {
+  --cream:        #faf8f4;
+  --white:        #ffffff;
+  --ink:          #1a1a1a;
+  --ink-light:    #555550;
+  --ink-muted:    #999990;
+  --gold:         #b8975a;
+  --gold-light:   #e8dcc8;
+  --border:       #e4e0d8;
+  --section-gap:  2.5rem;
+  --radius:       6px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', Helvetica, sans-serif;
+}
+ 
+/* ── Reset & base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+ 
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+ 
+body {
+  background-color: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.7;
+  padding: 3rem 1.5rem 5rem;
+}
+ 
+/* ── Conteneur principal ── */
+.cv-wrapper {
+  max-width: 760px;
+  margin: 0 auto;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+ 
+/* ── En-tête du CV ── */
+h1 {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-align: center;
+  padding: 3rem 3rem 0;
+  line-height: 1.15;
+}
+ 
+h1::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 2px;
+  background: var(--gold);
+  margin: 1.25rem auto 0;
+}
+ 
+/* ── Titres de section ── */
+h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-style: italic;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--gold-light);
+}
+ 
+/* ── Sections ── */
+section {
+  padding: 2rem 3rem;
+  border-bottom: 1px solid var(--border);
+}
+ 
+section:last-of-type {
+  border-bottom: none;
+}
+ 
+/* ── Liste d'éléments ── */
+ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+ 
+/* ── Carte d'item ── */
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+ 
+li:hover {
+  background: var(--cream);
+  border-color: var(--border);
+}
+ 
+/* ── Partie gauche de l'item (nom principal) ── */
+.item-main {
+  font-size: 0.975rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+ 
+/* ── Partie droite de l'item (niveau, poste…) ── */
+.item-sub {
+  font-size: 0.875rem;
+  font-weight: 300;
+  color: var(--ink-light);
+  white-space: nowrap;
+}
+ 
+/* ── Séparateur entre main et sub dans les li simples ── */
+li .sep {
+  flex: 1;
+  border-top: 1px dashed var(--border);
+  margin: 0 0.5rem;
+  align-self: center;
+}
+ 
+/* ── Badge de niveau (skills, langues) ── */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  background: var(--gold-light);
+  color: var(--gold);
+  border-radius: 20px;
+}
+ 
+/* ── Infos de contact (email / téléphone) ── */
+.contact-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1.5rem 3rem;
+  background: var(--cream);
+  border-top: 1px solid var(--border);
+}
+ 
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--ink-light);
+}
+ 
+.contact-item::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+ 
+/* ── Pied de page ── */
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+ 
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  h1 { font-size: 2rem; padding: 2rem 1.5rem 0; }
+  section { padding: 1.5rem; }
+  li { flex-direction: column; gap: 0.25rem; align-items: flex-start; }
+  li .sep { display: none; }
+  .contact-row { flex-direction: column; align-items: center; padding: 1.5rem; }
+}
+ 
+/* ── Impression ── */
+@media print {
+  body { background: white; padding: 0; }
+  .cv-wrapper { border: none; border-radius: 0; }
+  li:hover { background: transparent; border-color: transparent; }
+}

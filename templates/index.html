@@ -1,0 +1,55 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CV Generator</title>
+
+    <!--<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" />-->
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color-scheme: light;
+          --bg: #fff;
+          --accent-bg: #f5f7ff;
+          --text: #212121;
+          --text-light: #585858;
+          --accent: #0d47a1;
+          --accent-hover: #1266e2;
+          --accent-text: var(--bg);
+          --code: #d81b60;
+          --preformatted: #444;
+          --marked: #ffdd33;
+          --disabled: #efefef;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>CV Generator</h1>
+    <!--<p>{{message}}</p>
+    <p></p>-->
+    <ul>
+      {% for skill in skills %}
+      <li>{{skill.software}} - {{skill.level}}</li>
+      {%endfor%}
+      {% for experience in experiences %}
+      <li>{{experience.company}} - {{experience.position}}</li>
+      {%endfor%}
+      {% for project in projects %}
+      <li>{{project.name_project}}</li>
+      {%endfor%}
+      {% for education in education %}
+      <li>{{education.school}} - {{education.degree}}</li>
+      {%endfor%}
+      {% for language in languages %}
+      <li>{{language.language_name}} - {{language.level}}</li>
+      {%endfor%}
+      {% for info in infos %}
+      <li>{{info.email}} - {{info.phone}}</li>
+      {%endfor%}
+    </ul>
+  </body>
+</html>
