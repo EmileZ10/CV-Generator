@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ton Portfolio</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+
+  <h1>Ton Portfolio</h1>
+  <p class="page-sub">Remplis chaque section</p>
+
+  <!-- 01 – Profil / Info -->
+  <div class="card">
+    <h2>01 — Profil</h2>
+    <form action="/info" method="post">
+      <div class="form-grid two">
+        <div class="field"><label>Prénom</label><input name="first_name" placeholder=" "/></div>
+        <div class="field"><label>Nom</label><input name="last_name" placeholder=" "/></div>
+        <div class="field full"><label>Localisation</label><input name="location" placeholder=" "/></div>
+        <div class="field"><label>Phone</label><input name="phone" placeholder=" "/></div>
+        <div class="field"><label>Email</label><input name="email" placeholder=" "/></div>
+        <div class="field full"><label>GitHub</label><input name="github" placeholder=" "/></div>
+        <div class="field full"><label>LinkedIn</label><input name="linkedin" placeholder=" "/></div>
+      </div>
+      <button type="submit" class="btn-add">+ Ajouter</button>
+    </form>
+  </div>
+
+  <!-- 02 – Experience -->
+  <div class="card">
+    <h2>02 — Experience</h2>
+    <form action="/professional_experience" method="post">
+      <div class="form-grid two">
+        <div class="field"><label>Poste</label><input name="position" placeholder=" "/></div>
+        <div class="field"><label>Entreprise</label><input name="company" placeholder=" "/></div>
+      </div>
+      <div class="form-grid three" style="margin-top:1rem">
+        <div class="field"><label>Lieu</label><input name="location_exp" placeholder=" "/></div>
+        <div class="field"><label>Début</label><input name="start_date" type="number" placeholder="2022"/></div>
+        <div class="field"><label>Fin</label><input name="end_date" type="number" placeholder="2024"/></div>
+      </div>
+      <div class="form-grid" style="margin-top:1rem">
+        <div class="field"><label>Description</label><textarea name="description" rows="4" placeholder=" "></textarea></div>
+      </div>
+      <button type="submit" class="btn-add">+ Ajouter</button>
+    </form>
+  </div>
+
+  <!-- 03 – Formation -->
+  <div class="card">
+    <h2>03 — Formation</h2>
+    <form action="/education" method="post">
+      <div class="form-grid two">
+        <div class="field"><label>École</label><input name="school" placeholder=" "/></div>
+        <div class="field"><label>Diplôme</label><input name="degree" placeholder=" "/></div>
+        <div class="field"><label>Spécialité</label><input name="field_of_study" placeholder=" "/></div>
+        <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+          <div class="field"><label>Début</label><input name="start_year" type="number" placeholder="2018"/></div>
+          <div class="field"><label>Fin</label><input name="end_year" type="number" placeholder="2020"/></div>
+        </div>
+      </div>
+      <button type="submit" class="btn-add">+ Ajouter</button>
+    </form>
+  </div>
+
+  <!-- 04 – Compétences -->
+  <div class="card">
+    <h2>04 — Compétences</h2>
+    <form action="/skills" method="post">
+      <div class="form-grid two">
+        <div class="field"><label>Logiciel / Compétence</label><input name="software" placeholder=" "/></div>
+        <div class="field"><label>Niveau</label>
+          <select name="level">
+            <option value="Expert">Expert</option>
+            <option value="Avancé">Avancé</option>
+            <option value="Intermédiaire">Intermédiaire</option>
+            <option value="Débutant">Débutant</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-add">+ Ajouter</button>
+    </form>
+  </div>
+
+  <!-- 05 – Langues -->
+  <div class="card">
+    <h2>05 — Langues</h2>
+    <form action="/languages" method="post">
+      <div class="form-grid two">
+        <div class="field"><label>Langue</label><input name="language_name" placeholder=" "/></div>
+        <div class="field"><label>Niveau</label>
+          <select name="level">
+            <option>Natif</option>
+            <option>C2</option><option>C1</option>
+            <option>B2</option><option>B1</option><option>A2</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-add">+ Ajouter</button>
+    </form>
+  </div>
+
+  <!-- 06 – Projets -->
+  <div class="card">
+    <h2>06 — Projets</h2>
+    <form action="/projects" method="post">
+      <div class="form-grid two">
+        <div class="field"><label>Nom du projet</label><input name="name_project" placeholder=" "/></div>
+        <div class="field"><label>Lien</label><input name="link" placeholder=" "/></div>
+        <div class="field full"><label>Description</label><textarea name="description" rows="3" placeholder=" "></textarea></div>
+      </div>
+      <button type="submit" class="btn-add">+ Ajouter</button>
+    </form>
+  </div>
+
+  <div style="text-align:center;margin-top:2rem">
+    <a href="/" style="display:inline-block;padding:0.9rem 2.5rem;background:#2e2e2e;color:#fff;border-radius:10px;font-family:var(--font);font-size:0.9rem;text-decoration:none">
+      Voir mon portfolio →
+    </a>
+  </div>
+
+</body>
+</html>

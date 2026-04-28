@@ -1,0 +1,325 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --bg:         #f0ede8;
+  --white:      #ffffff;
+  --input-bg:   #2e2e2e;
+  --input-text: #ffffff;
+  --label:      #888880;
+  --ink:        #1a1a1a;
+  --ink-light:  #555550;
+  --blue:       #6b8cde;
+  --blue-light: #dce5f8;
+  --border:     #e4e0d8;
+  --radius:     12px;
+  --font:       'IBM Plex Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-weight: 400;
+  line-height: 1.6;
+  padding: 3rem 1.5rem 5rem;
+}
+
+/* ── Titres de page ── */
+h1 {
+  font-family: var(--font);
+  font-size: 2.8rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 0.4rem;
+}
+
+.page-sub {
+  font-size: 1rem;
+  color: var(--label);
+  margin-bottom: 2.5rem;
+}
+
+/* ── Cartes section ── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.25rem;
+  border: none;
+}
+
+/* ── Titres de section (01 – Profil) ── */
+h2 {
+  font-family: var(--font);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  border: none;
+  letter-spacing: 0;
+  text-transform: none;
+  font-style: normal;
+}
+
+/* ── Grille de champs ── */
+.form-grid {
+  display: grid;
+  gap: 1rem;
+}
+.form-grid.two   { grid-template-columns: 1fr 1fr; }
+.form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+
+/* ── Champ individuel ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.field.full { grid-column: 1 / -1; }
+
+label {
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--label);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+input, textarea, select {
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 300;
+  padding: 0.85rem 1rem;
+  width: 100%;
+  resize: vertical;
+  transition: background 0.15s;
+}
+
+input::placeholder, textarea::placeholder { color: #666; }
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--blue);
+  background: #333;
+}
+
+select option { background: var(--input-bg); }
+
+/* ── Bouton Ajouter ── */
+.btn-add {
+  width: 100%;
+  padding: 0.9rem;
+  margin-top: 1rem;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-add:hover { background: #3a3a3a; }
+
+/* ══════════════════════════════
+   PORTFOLIO (page de résultat)
+══════════════════════════════ */
+
+/* ── Hero ── */
+.pf-hero {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.pf-name {
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.pf-role {
+  font-size: 1rem;
+  color: var(--blue);
+  margin-bottom: 0.75rem;
+}
+
+.pf-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 2rem;
+  font-size: 0.82rem;
+  color: var(--label);
+  margin-bottom: 1rem;
+}
+
+.pf-bio {
+  font-size: 0.9rem;
+  color: var(--ink);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+  max-width: 600px;
+}
+
+.pf-links { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+.pf-link {
+  display: inline-block;
+  padding: 0.3rem 0.9rem;
+  background: #e0ddd8;
+  color: var(--ink-light);
+  border-radius: 20px;
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+.pf-link:hover { background: #d0cdc8; }
+
+/* ── Sections portfolio ── */
+.pf-section {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.pf-section-title {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Entrée expérience/formation ── */
+.pf-entry { margin-bottom: 1.25rem; }
+.pf-entry:last-child { margin-bottom: 0; }
+
+.pf-entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.15rem;
+}
+
+.pf-entry-title {
+  font-size: 0.975rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.pf-entry-dates {
+  font-size: 0.82rem;
+  color: var(--label);
+  white-space: nowrap;
+}
+
+.pf-entry-sub {
+  font-size: 0.85rem;
+  color: var(--blue);
+  margin-bottom: 0.4rem;
+}
+
+.pf-entry-desc {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  line-height: 1.65;
+}
+
+.pf-entry-desc ul {
+  list-style: disc;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* ── Tags compétences / langues ── */
+.pf-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.pf-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.85rem;
+  background: var(--blue-light);
+  color: var(--blue);
+  border-radius: 20px;
+  font-size: 0.82rem;
+}
+
+.pf-tag-level {
+  font-size: 0.72rem;
+  color: var(--ink-light);
+  border-left: 1px solid #b0bfe8;
+  padding-left: 0.4rem;
+}
+
+/* ── Grille projets ── */
+.pf-proj-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem;
+}
+
+.pf-proj {
+  background: #f0ede8;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.pf-proj-year {
+  display: inline-block;
+  padding: 0.2rem 0.75rem;
+  background: var(--blue);
+  color: #fff;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.pf-proj-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+
+.pf-proj-desc {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  line-height: 1.55;
+  margin-bottom: 0.6rem;
+}
+
+.pf-proj-link {
+  font-size: 0.78rem;
+  color: var(--blue);
+  text-decoration: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  h1 { font-size: 1.8rem; }
+  .form-grid.two,
+  .form-grid.three { grid-template-columns: 1fr; }
+  .pf-proj-grid { grid-template-columns: 1fr; }
+  .card, .pf-hero, .pf-section { padding: 1.5rem; }
+}
+
+/* ── Impression ── */
+@media print {
+  body { background: white; padding: 0; }
+  .pf-hero, .pf-section { border-radius: 0; }
+}

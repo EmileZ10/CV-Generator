@@ -1,15 +1,17 @@
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from typing import Annotated
 from fastapi import Depends
+from fastapi.staticfiles import StaticFiles
 
 templates = Jinja2Templates(directory="templates")
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 sqlite_url = "sqlite:///./cv.db"
 engine = create_engine(sqlite_url, connect_args={"check_same_thread": False})
@@ -55,6 +57,8 @@ class Language(SQLModel, table=True):
 
 class Info(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    first_name: str
+    last_name: str
     email: str
     phone: str
     location: str
@@ -80,7 +84,7 @@ def create_skill(software: str, level: str, session: SessionDep):
     session.add(skill)
     session.commit()
     session.refresh(skill)
-    return skill
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.post("/education")
@@ -102,7 +106,7 @@ def create_education(
     session.add(education)
     session.commit()
     session.refresh(education)
-    return education
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.post("/professional_experience")
@@ -124,7 +128,7 @@ def create_professional_experience(
     session.add(experience)
     session.commit()
     session.refresh(experience)
-    return experience
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.post("/languages")
@@ -133,11 +137,13 @@ def create_language(language_name: str, level: str, session: SessionDep):
     session.add(language)
     session.commit()
     session.refresh(language)
-    return language
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.post("/info")
 def create_info(
+    first_name: str,
+    last_name: str,
     email: str,
     phone: str,
     location: str,
@@ -146,12 +152,18 @@ def create_info(
     session: SessionDep,
 ):
     info = Info(
-        email=email, phone=phone, location=location, linkedin=linkedin, github=github
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        phone=phone,
+        location=location,
+        linkedin=linkedin,
+        github=github,
     )
     session.add(info)
     session.commit()
     session.refresh(info)
-    return info
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.post("/projects")
@@ -160,7 +172,12 @@ def create_project(name_project: str, description: str, link: str, session: Sess
     session.add(project)
     session.commit()
     session.refresh(project)
-    return project
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.get("/form", response_class=HTMLResponse)
+def read_form(request: Request):
+    return templates.TemplateResponse(request, "form.html", context={})
 
 
 @app.get("/", response_class=HTMLResponse)

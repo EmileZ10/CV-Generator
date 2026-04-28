@@ -1,55 +1,116 @@
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CV Generator</title>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portfolio</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
 
-    <!--<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" />-->
-    <link rel="stylesheet" href="style.css" />
+  {% for i in info %}
+  <!-- Hero -->
+  <div class="pf-hero">
+    <div class="pf-name">{{ i.first_name }} {{ i.last_name }}</div>
+    {% if professional_experience %}
+    <div class="pf-role">{{ professional_experience[0].position }}</div>
+    {% endif %}
+    <div class="pf-meta">
+      <span>{{ i.location }}</span>
+      <span>{{ i.email }}</span>
+      <span>{{ i.phone }}</span>
+    </div>
+    <div class="pf-links">
+      {% if i.github %}<a class="pf-link" href="{{ i.github }}">Github</a>{% endif %}
+      {% if i.linkedin %}<a class="pf-link" href="{{ i.linkedin }}">LinkedIn</a>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
 
-    <style>
-      @media (prefers-color-scheme: dark) {
-        :root {
-          color-scheme: light;
-          --bg: #fff;
-          --accent-bg: #f5f7ff;
-          --text: #212121;
-          --text-light: #585858;
-          --accent: #0d47a1;
-          --accent-hover: #1266e2;
-          --accent-text: var(--bg);
-          --code: #d81b60;
-          --preformatted: #444;
-          --marked: #ffdd33;
-          --disabled: #efefef;
-        }
-      }
-    </style>
-  </head>
+  <!-- Expérience -->
+  {% if professional_experience %}
+  <div class="pf-section">
+    <div class="pf-section-title">Experience Professionnelle</div>
+    {% for exp in professional_experience %}
+    <div class="pf-entry">
+      <div class="pf-entry-head">
+        <span class="pf-entry-title">{{ exp.position }}</span>
+        <span class="pf-entry-dates">{{ exp.start_date }} – {{ exp.end_date }}</span>
+      </div>
+      <div class="pf-entry-sub">{{ exp.company }}</div>
+      <div class="pf-entry-desc">{{ exp.description }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
-  <body>
-    <h1>CV Generator</h1>
-    <!--<p>{{message}}</p>
-    <p></p>-->
-    <ul>
+  <!-- Formation -->
+  {% if education %}
+  <div class="pf-section">
+    <div class="pf-section-title">Formation</div>
+    {% for edu in education %}
+    <div class="pf-entry">
+      <div class="pf-entry-head">
+        <span class="pf-entry-title">{{ edu.school }}</span>
+        <span class="pf-entry-dates">{{ edu.start_year }} – {{ edu.end_year }}</span>
+      </div>
+      <div class="pf-entry-sub">{{ edu.degree }} · {{ edu.field_of_study }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Compétences -->
+  {% if skills %}
+  <div class="pf-section">
+    <div class="pf-section-title">Compétences</div>
+    <div class="pf-tags">
       {% for skill in skills %}
-      <li>{{skill.software}} - {{skill.level}}</li>
-      {%endfor%}
-      {% for experience in experiences %}
-      <li>{{experience.company}} - {{experience.position}}</li>
-      {%endfor%}
-      {% for project in projects %}
-      <li>{{project.name_project}}</li>
-      {%endfor%}
-      {% for education in education %}
-      <li>{{education.school}} - {{education.degree}}</li>
-      {%endfor%}
-      {% for language in languages %}
-      <li>{{language.language_name}} - {{language.level}}</li>
-      {%endfor%}
-      {% for info in infos %}
-      <li>{{info.email}} - {{info.phone}}</li>
-      {%endfor%}
-    </ul>
-  </body>
+      <span class="pf-tag">
+        {{ skill.software }}
+        <span class="pf-tag-level">{{ skill.level }}</span>
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Langues -->
+  {% if languages %}
+  <div class="pf-section">
+    <div class="pf-section-title">Langues</div>
+    <div class="pf-tags">
+      {% for lang in languages %}
+      <span class="pf-tag">
+        {{ lang.language_name }}
+        <span class="pf-tag-level">{{ lang.level }}</span>
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Projets -->
+  {% if projects %}
+  <div class="pf-section">
+    <div class="pf-section-title">Projets</div>
+    <div class="pf-proj-grid">
+      {% for proj in projects %}
+      <div class="pf-proj">
+        <div class="pf-proj-name">{{ proj.name_project }}</div>
+        <div class="pf-proj-desc">{{ proj.description }}</div>
+        {% if proj.link %}<a class="pf-proj-link" href="{{ proj.link }}">{{ proj.link }} →</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div style="text-align:center;margin-top:2rem">
+    <a href="/form" style="display:inline-block;padding:0.75rem 2rem;background:#2e2e2e;color:#fff;border-radius:10px;font-family:var(--font);font-size:0.85rem;text-decoration:none">
+      ← Modifier les données
+    </a>
+  </div>
+
+</body>
 </html>
