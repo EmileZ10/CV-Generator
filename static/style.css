@@ -323,3 +323,40 @@ select option { background: var(--input-bg); }
   body { background: white; padding: 0; }
   .pf-hero, .pf-section { border-radius: 0; }
 }
+
+/* ── Bouton supprimer (entrées) ── */
+.btn-delete {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  color: var(--label);
+  font-family: var(--font);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.btn-delete:hover {
+  border-color: #e05555;
+  color: #e05555;
+}
+
+/* ── Bouton supprimer (tags skills/langues) ── */
+.btn-delete-tag {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0 0 0 0.2rem;
+  line-height: 1;
+  opacity: 0.6;
+}
+.btn-delete-tag:hover { opacity: 1; color: #e05555; }
+
+
+.pf-btn-delete { 
+  display:flex;
+  align-items:center;
+  gap:1rem}
