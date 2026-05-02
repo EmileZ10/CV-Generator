@@ -199,3 +199,51 @@ def read_home(request: Request, session: SessionDep):
             "projects": session.exec(select(Project)).all(),
         },
     )
+
+
+@app.delete("/info/{item_id}")
+def delete_info(item_id: int, session: SessionDep):
+    item = session.get(Info, item_id)
+    session.delete(item)
+    session.commit()
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.delete("/professional_experience/{item_id}")
+def delete_experience(item_id: int, session: SessionDep):
+    item = session.get(ProfessionalExperience, item_id)
+    session.delete(item)
+    session.commit()
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.delete("/education/{item_id}")
+def delete_education(item_id: int, session: SessionDep):
+    item = session.get(Education, item_id)
+    session.delete(item)
+    session.commit()
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.delete("/skills/{item_id}")
+def delete_skill(item_id: int, session: SessionDep):
+    item = session.get(Skill, item_id)
+    session.delete(item)
+    session.commit()
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.delete("/languages/{item_id}")
+def delete_language(item_id: int, session: SessionDep):
+    item = session.get(Language, item_id)
+    session.delete(item)
+    session.commit()
+    return RedirectResponse(url="/", status_code=303)
+
+
+@app.delete("/projects/{item_id}")
+def delete_project(item_id: int, session: SessionDep):
+    item = session.get(Project, item_id)
+    session.delete(item)
+    session.commit()
+    return RedirectResponse(url="/", status_code=303)
