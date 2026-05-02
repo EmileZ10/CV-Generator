@@ -201,7 +201,7 @@ def read_home(request: Request, session: SessionDep):
     )
 
 
-@app.delete("/info/{item_id}")
+@app.post("/info/{item_id}/delete")
 def delete_info(item_id: int, session: SessionDep):
     item = session.get(Info, item_id)
     session.delete(item)
@@ -209,7 +209,7 @@ def delete_info(item_id: int, session: SessionDep):
     return RedirectResponse(url="/", status_code=303)
 
 
-@app.delete("/professional_experience/{item_id}")
+@app.post("/professional_experience/{item_id}/delete")
 def delete_experience(item_id: int, session: SessionDep):
     item = session.get(ProfessionalExperience, item_id)
     session.delete(item)
@@ -225,7 +225,7 @@ def delete_education(item_id: int, session: SessionDep):
     return RedirectResponse(url="/", status_code=303)
 
 
-@app.delete("/skills/{item_id}")
+@app.post("/skills/{item_id}/delete")
 def delete_skill(item_id: int, session: SessionDep):
     item = session.get(Skill, item_id)
     session.delete(item)
@@ -233,7 +233,7 @@ def delete_skill(item_id: int, session: SessionDep):
     return RedirectResponse(url="/", status_code=303)
 
 
-@app.delete("/languages/{item_id}")
+@app.post("/languages/{item_id}/delete")
 def delete_language(item_id: int, session: SessionDep):
     item = session.get(Language, item_id)
     session.delete(item)
@@ -241,7 +241,7 @@ def delete_language(item_id: int, session: SessionDep):
     return RedirectResponse(url="/", status_code=303)
 
 
-@app.delete("/projects/{item_id}")
+@app.post("/projects/{item_id}/delete")
 def delete_project(item_id: int, session: SessionDep):
     item = session.get(Project, item_id)
     session.delete(item)
