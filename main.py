@@ -217,7 +217,7 @@ def delete_experience(item_id: int, session: SessionDep):
     return RedirectResponse(url="/", status_code=303)
 
 
-@app.delete("/education/{item_id}")
+@app.post("/education/{item_id}/delete")
 def delete_education(item_id: int, session: SessionDep):
     item = session.get(Education, item_id)
     session.delete(item)
