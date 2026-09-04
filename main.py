@@ -2,7 +2,7 @@ import os
 import re
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Form, Request
+from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -11,7 +11,21 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from starlette.middleware.sessions import SessionMiddleware
 
+def safe_url(value: str | None) -> str:
+    """An http(s) URL as-is, or '' for anything else (blank, javascript:, data:, ...).
+
+    Guards template `href`s built from free-text user input (Info.github,
+    Info.linkedin, Project.link) against script-scheme injection — a link
+    rendered on someone else's public Portfolio must not be able to execute
+    script in a visitor's browser.
+    """
+    if value and value.startswith(("http://", "https://")):
+        return value
+    return ""
+
+
 templates = Jinja2Templates(directory="templates")
+templates.env.filters["safe_url"] = safe_url
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -418,3 +432,36 @@ def delete_project(item_id: int, session: SessionDep):
     session.delete(item)
     session.commit()
     return RedirectResponse(url="/", status_code=303)
+
+
+def _scoped(session: Session, model: type, user_id: int | None) -> list:
+    """All rows of `model` belonging to a User, in a stable (insertion) order."""
+    return session.exec(
+        select(model).where(model.user_id == user_id).order_by(model.id)
+    ).all()
+
+
+# Registered last so every fixed route above (/, /form, /login, /register,
+# /logout, /static, the entity routes, …) is matched first — route order,
+# not just RESERVED_USERNAMES, is what keeps a Username from ever shadowing
+# one of them.
+@app.get("/{username}", response_class=HTMLResponse)
+def read_portfolio(username: str, request: Request, session: SessionDep):
+    user = session.exec(select(User).where(User.username == username)).first()
+    if user is None:
+        raise HTTPException(status_code=404)
+
+    return templates.TemplateResponse(
+        request,
+        "portfolio.html",
+        context={
+            "info": _scoped(session, Info, user.id),
+            "education": _scoped(session, Education, user.id),
+            "professional_experience": _scoped(
+                session, ProfessionalExperience, user.id
+            ),
+            "skills": _scoped(session, Skill, user.id),
+            "languages": _scoped(session, Language, user.id),
+            "projects": _scoped(session, Project, user.id),
+        },
+    )

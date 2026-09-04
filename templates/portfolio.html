@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portfolio</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+
+  {% for i in info %}
+  <!-- Hero -->
+  <div class="pf-hero">
+  <div class="pf-hero-top">
+    <div class="pf-name">{{ i.first_name }} {{ i.last_name }}</div>
+    {% if professional_experience %}
+    <div class="pf-role">{{ professional_experience[0].position }}</div>
+    {% endif %}
+    <div class="pf-meta">
+      {% if i.location %}<span>{{ i.location }}</span>{% endif %}
+      {% if i.email %}<span>{{ i.email }}</span>{% endif %}
+      {% if i.phone %}<span>{{ i.phone }}</span>{% endif %}
+    </div>
+    <div class="pf-links">
+      {% if i.github|safe_url %}<a class="pf-link" href="{{ i.github|safe_url }}">Github</a>{% endif %}
+      {% if i.linkedin|safe_url %}<a class="pf-link" href="{{ i.linkedin|safe_url }}">LinkedIn</a>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- Expérience -->
+  {% if professional_experience %}
+  <div class="pf-section">
+    <div class="pf-section-title">Experience Professionnelle</div>
+    {% for exp in professional_experience %}
+    <div class="pf-entry">
+      <div class="pf-entry-head">
+        <span class="pf-entry-title">{{ exp.position }}</span>
+        {% if exp.start_date or exp.end_date %}
+        <span class="pf-entry-dates">{{ exp.start_date or "" }} – {{ exp.end_date or "" }}</span>
+        {% endif %}
+      </div>
+      {% if exp.company %}<div class="pf-entry-sub">{{ exp.company }}</div>{% endif %}
+      {% if exp.description %}<div class="pf-entry-desc">{{ exp.description }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Formation -->
+  {% if education %}
+  <div class="pf-section">
+    <div class="pf-section-title">Formation</div>
+    {% for edu in education %}
+    <div class="pf-entry">
+      <div class="pf-entry-head">
+        <span class="pf-entry-title">{{ edu.school }}</span>
+        {% if edu.start_year or edu.end_year %}
+        <span class="pf-entry-dates">{{ edu.start_year or "" }} – {{ edu.end_year or "" }}</span>
+        {% endif %}
+      </div>
+      {% if edu.degree or edu.field_of_study %}
+      <div class="pf-entry-sub">{{ [edu.degree, edu.field_of_study] | select | join(" · ") }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Compétences -->
+  {% if skills %}
+  <div class="pf-section">
+    <div class="pf-section-title">Compétences</div>
+    <div class="pf-tags">
+      {% for skill in skills %}
+      <span class="pf-tag">
+        {{ skill.software }}
+        {% if skill.level %}<span class="pf-tag-level">{{ skill.level }}</span>{% endif %}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Langues -->
+  {% if languages %}
+  <div class="pf-section">
+    <div class="pf-section-title">Langues</div>
+    <div class="pf-tags">
+      {% for lang in languages %}
+      <span class="pf-tag">
+        {{ lang.language_name }}
+        {% if lang.level %}<span class="pf-tag-level">{{ lang.level }}</span>{% endif %}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Projets -->
+  {% if projects %}
+  <div class="pf-section">
+    <div class="pf-section-title">Projets</div>
+    <div class="pf-proj-grid">
+      {% for proj in projects %}
+      <div class="pf-proj">
+        <div class="pf-proj-name">{{ proj.name_project }}</div>
+        {% if proj.description %}<div class="pf-proj-desc">{{ proj.description }}</div>{% endif %}
+        {% if proj.link|safe_url %}<a class="pf-proj-link" href="{{ proj.link|safe_url }}">{{ proj.link }} →</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</body>
+</html>
