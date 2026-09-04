@@ -1,13 +1,46 @@
-from fastapi import FastAPI, Request, Form, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+import os
+import re
 from typing import Annotated
+
+from fastapi import Depends, FastAPI, Form, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from passlib.context import CryptContext
+from sqlalchemy.exc import IntegrityError
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+from starlette.middleware.sessions import SessionMiddleware
 
 templates = Jinja2Templates(directory="templates")
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Usernames double as the Portfolio URL segment (`/username`), so any value
+# that collides with an existing top-level route is rejected at registration.
+RESERVED_USERNAMES = {
+    "form",
+    "login",
+    "logout",
+    "register",
+    "static",
+    "docs",
+    "redoc",
+    "openapi",
+    "openapi.json",
+    "favicon.ico",
+    "skills",
+    "education",
+    "professional_experience",
+    "languages",
+    "info",
+    "projects",
+}
+USERNAME_PATTERN = re.compile(r"^[a-z0-9-]{3,30}$")
 
 sqlite_url = "sqlite:///./cv.db"
 engine = create_engine(sqlite_url, connect_args={"check_same_thread": False})
@@ -21,10 +54,28 @@ def get_session():
 SessionDep = Annotated[Session, Depends(get_session)]
 
 
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str = Field(unique=True, index=True)
+    login_email: str = Field(unique=True, index=True)
+    hashed_password: str
+
+
+def get_current_user(request: Request, session: SessionDep) -> User | None:
+    user_id = request.session.get("user_id")
+    if user_id is None:
+        return None
+    return session.get(User, user_id)
+
+
+CurrentUserDep = Annotated[User | None, Depends(get_current_user)]
+
+
 class Skill(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     software: str | None = None
     level: str | None = None
+    user_id: int | None = Field(default=None, foreign_key="user.id")
 
 
 class Education(SQLModel, table=True):
@@ -34,6 +85,7 @@ class Education(SQLModel, table=True):
     field_of_study: str | None = None
     start_year: int | None = None
     end_year: int | None = None
+    user_id: int | None = Field(default=None, foreign_key="user.id")
 
 
 class ProfessionalExperience(SQLModel, table=True):
@@ -43,12 +95,14 @@ class ProfessionalExperience(SQLModel, table=True):
     start_date: int | None = None
     end_date: int | None = None
     description: str | None = None
+    user_id: int | None = Field(default=None, foreign_key="user.id")
 
 
 class Language(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     language_name: str | None = None
     level: str | None = None
+    user_id: int | None = Field(default=None, foreign_key="user.id")
 
 
 class Info(SQLModel, table=True):
@@ -60,6 +114,7 @@ class Info(SQLModel, table=True):
     location: str | None = None
     linkedin: str | None = None
     github: str | None = None
+    user_id: int | None = Field(default=None, foreign_key="user.id")
 
 
 class Project(SQLModel, table=True):
@@ -67,6 +122,7 @@ class Project(SQLModel, table=True):
     name_project: str | None = None
     description: str | None = None
     link: str | None = None
+    user_id: int | None = Field(default=None, foreign_key="user.id")
 
 
 @app.on_event("startup")
@@ -175,6 +231,65 @@ def create_project(
 ):
     session.add(Project(name_project=name_project, description=description, link=link))
     session.commit()
+    return RedirectResponse(url="/form", status_code=303)
+
+
+@app.get("/register", response_class=HTMLResponse)
+def read_register(request: Request):
+    return templates.TemplateResponse(request, "register.html", context={})
+
+
+@app.post("/register")
+def create_user(
+    request: Request,
+    login_email: str = Form(...),
+    password: str = Form(...),
+    username: str = Form(...),
+    session: SessionDep = None,
+):
+    def reject(error: str):
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            context={
+                "error": error,
+                "login_email": login_email,
+                "username": username,
+            },
+        )
+
+    if not USERNAME_PATTERN.match(username):
+        return reject(
+            "Nom d'utilisateur invalide : lettres minuscules, chiffres et "
+            "tirets uniquement, 3 à 30 caractères."
+        )
+
+    if username in RESERVED_USERNAMES:
+        return reject("Ce nom d'utilisateur est réservé.")
+
+    if session.exec(select(User).where(User.username == username)).first():
+        return reject("Ce nom d'utilisateur est déjà pris.")
+
+    if session.exec(select(User).where(User.login_email == login_email)).first():
+        return reject("Cet email est déjà utilisé.")
+
+    user = User(
+        username=username,
+        login_email=login_email,
+        hashed_password=pwd_context.hash(password),
+    )
+    session.add(user)
+    try:
+        session.commit()
+    except IntegrityError:
+        # Another request won a race against the checks above and took this
+        # username/login_email first between the SELECTs and this commit.
+        session.rollback()
+        return reject("Ce nom d'utilisateur ou cet email est déjà pris.")
+    session.refresh(user)
+
+    request.session["user_id"] = user.id
+
     return RedirectResponse(url="/form", status_code=303)
 
 

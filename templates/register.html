@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Créer un compte</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+
+  <h1>Créer un compte</h1>
+  <p class="page-sub">Ton Username devient l'adresse de ton portfolio et ne pourra plus changer</p>
+
+  <div class="card">
+    {% if error %}
+    <p style="color:#b00020;margin:0 0 1rem">{{ error }}</p>
+    {% endif %}
+    <form action="/register" method="post">
+      <div class="form-grid">
+        <div class="field">
+          <label>Login Email</label>
+          <input name="login_email" type="email" value="{{ login_email or '' }}" required placeholder=" "/>
+        </div>
+        <div class="field">
+          <label>Mot de passe</label>
+          <input name="password" type="password" required placeholder=" "/>
+        </div>
+        <div class="field">
+          <label>Username</label>
+          <input name="username" value="{{ username or '' }}" required placeholder=" "/>
+        </div>
+      </div>
+      <button type="submit" class="btn-add">Créer mon compte</button>
+    </form>
+  </div>
+
+</body>
+</html>
