@@ -6,11 +6,15 @@ from main import Education
 
 
 def test_form_page_renders(client):
+    # Anonymous: redirected to /login and 200 there. See test_login.py for the
+    # auth-gate assertions on this route.
     response = client.get("/form")
     assert response.status_code == 200
 
 
 def test_home_page_renders(client):
+    # Anonymous: renders the login/registration entry point. See
+    # test_login.py for the auth-gate assertions on this route.
     response = client.get("/")
     assert response.status_code == 200
 

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Se connecter</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+
+  <h1>Se connecter</h1>
+  <p class="page-sub">Accède à ton portfolio et à ton éditeur</p>
+
+  <div class="card">
+    {% if error %}
+    <p style="color:#b00020;margin:0 0 1rem">{{ error }}</p>
+    {% endif %}
+    <form action="/login" method="post">
+      <div class="form-grid">
+        <div class="field">
+          <label>Login Email</label>
+          <input name="login_email" type="email" value="{{ login_email or '' }}" required placeholder=" "/>
+        </div>
+        <div class="field">
+          <label>Mot de passe</label>
+          <input name="password" type="password" required placeholder=" "/>
+        </div>
+      </div>
+      <button type="submit" class="btn-add">Se connecter</button>
+    </form>
+  </div>
+
+  <p class="page-sub"><a href="/register">Créer un compte</a></p>
+
+</body>
+</html>

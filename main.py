@@ -19,6 +19,10 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# A precomputed hash to run through pwd_context.verify() when no matching User
+# exists, so an unknown login_email takes the same bcrypt-verify time as a
+# known one — otherwise the two cases are distinguishable by response latency.
+_DUMMY_PASSWORD_HASH = pwd_context.hash("no-such-user-timing-safety")
 
 # Usernames double as the Portfolio URL segment (`/username`), so any value
 # that collides with an existing top-level route is rejected at registration.
@@ -69,6 +73,20 @@ def get_current_user(request: Request, session: SessionDep) -> User | None:
 
 
 CurrentUserDep = Annotated[User | None, Depends(get_current_user)]
+
+
+def redirect_if_anonymous(current_user: User | None) -> RedirectResponse | None:
+    """Auth gate for routes that require a session, e.g. /form."""
+    if current_user is None:
+        return RedirectResponse(url="/login", status_code=303)
+    return None
+
+
+def redirect_if_authenticated(current_user: User | None) -> RedirectResponse | None:
+    """Guard for routes that only make sense signed out, e.g. /login, /register."""
+    if current_user is not None:
+        return RedirectResponse(url="/form", status_code=303)
+    return None
 
 
 class Skill(SQLModel, table=True):
@@ -235,7 +253,9 @@ def create_project(
 
 
 @app.get("/register", response_class=HTMLResponse)
-def read_register(request: Request):
+def read_register(request: Request, current_user: CurrentUserDep):
+    if (redirect := redirect_if_authenticated(current_user)) is not None:
+        return redirect
     return templates.TemplateResponse(request, "register.html", context={})
 
 
@@ -293,27 +313,63 @@ def create_user(
     return RedirectResponse(url="/form", status_code=303)
 
 
+@app.get("/login", response_class=HTMLResponse)
+def read_login(request: Request, current_user: CurrentUserDep):
+    if (redirect := redirect_if_authenticated(current_user)) is not None:
+        return redirect
+    return templates.TemplateResponse(request, "login.html", context={})
+
+
+@app.post("/login")
+def create_login(
+    request: Request,
+    login_email: str = Form(...),
+    password: str = Form(...),
+    session: SessionDep = None,
+):
+    def reject():
+        return templates.TemplateResponse(
+            request,
+            "login.html",
+            context={
+                "error": "Email ou mot de passe incorrect.",
+                "login_email": login_email,
+            },
+        )
+
+    user = session.exec(
+        select(User).where(User.login_email == login_email)
+    ).first()
+    # Always run a bcrypt verify, even for an unknown email, so the two cases
+    # take the same amount of time and can't be told apart by response latency.
+    password_ok = pwd_context.verify(
+        password, user.hashed_password if user else _DUMMY_PASSWORD_HASH
+    )
+    if user is None or not password_ok:
+        return reject()
+
+    request.session["user_id"] = user.id
+    return RedirectResponse(url="/form", status_code=303)
+
+
+@app.post("/logout")
+def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/", status_code=303)
+
+
 @app.get("/form", response_class=HTMLResponse)
-def read_form(request: Request):
+def read_form(request: Request, current_user: CurrentUserDep):
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
     return templates.TemplateResponse(request, "form.html", context={})
 
 
 @app.get("/", response_class=HTMLResponse)
-def read_home(request: Request, session: SessionDep):
-    return templates.TemplateResponse(
-        request,
-        "index.html",
-        context={
-            "skills": session.exec(select(Skill)).all(),
-            "education": session.exec(select(Education)).all(),
-            "professional_experience": session.exec(
-                select(ProfessionalExperience)
-            ).all(),
-            "languages": session.exec(select(Language)).all(),
-            "info": session.exec(select(Info)).all(),
-            "projects": session.exec(select(Project)).all(),
-        },
-    )
+def read_home(request: Request, current_user: CurrentUserDep):
+    if (redirect := redirect_if_authenticated(current_user)) is not None:
+        return redirect
+    return templates.TemplateResponse(request, "home.html", context={})
 
 
 @app.post("/info/{item_id}/delete")
