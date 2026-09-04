@@ -38,8 +38,8 @@ def test_create_education_anonymous_redirects_to_login(client, session: Session)
 
 
 def test_delete_education_uses_post_route(client, session: Session):
-    session.add(Education(school="EPF"))
-    session.commit()
+    register_user(client)
+    client.post("/education", data={"school": "EPF"})
     item_id = session.exec(select(Education)).one().id
 
     # The old `DELETE /education/{id}` route is gone.

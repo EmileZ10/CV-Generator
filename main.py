@@ -459,52 +459,78 @@ def read_home(request: Request, current_user: CurrentUserDep):
     return templates.TemplateResponse(request, "home.html", context={})
 
 
-@app.post("/info/{item_id}/delete")
-def delete_info(item_id: int, session: SessionDep):
-    item = session.get(Info, item_id)
+def _delete_owned(session: Session, model: type, item_id: int, current_user: User):
+    """Delete a row the current User owns, or 404.
+
+    404 (never a bare "not found" vs. "not yours" distinction) covers both a
+    missing id and one that belongs to another User, so a User can't use the
+    delete route to probe which ids exist.
+    """
+    item = session.get(model, item_id)
+    if item is None or item.user_id != current_user.id:
+        raise HTTPException(status_code=404)
     session.delete(item)
     session.commit()
-    return RedirectResponse(url="/", status_code=303)
+
+
+@app.post("/info/{item_id}/delete")
+def delete_info(
+    item_id: int, current_user: CurrentUserDep, session: SessionDep
+):
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+    _delete_owned(session, Info, item_id, current_user)
+    return RedirectResponse(url="/form", status_code=303)
 
 
 @app.post("/professional_experience/{item_id}/delete")
-def delete_experience(item_id: int, session: SessionDep):
-    item = session.get(ProfessionalExperience, item_id)
-    session.delete(item)
-    session.commit()
-    return RedirectResponse(url="/", status_code=303)
+def delete_experience(
+    item_id: int, current_user: CurrentUserDep, session: SessionDep
+):
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+    _delete_owned(session, ProfessionalExperience, item_id, current_user)
+    return RedirectResponse(url="/form", status_code=303)
 
 
 @app.post("/education/{item_id}/delete")
-def delete_education(item_id: int, session: SessionDep):
-    item = session.get(Education, item_id)
-    session.delete(item)
-    session.commit()
-    return RedirectResponse(url="/", status_code=303)
+def delete_education(
+    item_id: int, current_user: CurrentUserDep, session: SessionDep
+):
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+    _delete_owned(session, Education, item_id, current_user)
+    return RedirectResponse(url="/form", status_code=303)
 
 
 @app.post("/skills/{item_id}/delete")
-def delete_skill(item_id: int, session: SessionDep):
-    item = session.get(Skill, item_id)
-    session.delete(item)
-    session.commit()
-    return RedirectResponse(url="/", status_code=303)
+def delete_skill(
+    item_id: int, current_user: CurrentUserDep, session: SessionDep
+):
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+    _delete_owned(session, Skill, item_id, current_user)
+    return RedirectResponse(url="/form", status_code=303)
 
 
 @app.post("/languages/{item_id}/delete")
-def delete_language(item_id: int, session: SessionDep):
-    item = session.get(Language, item_id)
-    session.delete(item)
-    session.commit()
-    return RedirectResponse(url="/", status_code=303)
+def delete_language(
+    item_id: int, current_user: CurrentUserDep, session: SessionDep
+):
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+    _delete_owned(session, Language, item_id, current_user)
+    return RedirectResponse(url="/form", status_code=303)
 
 
 @app.post("/projects/{item_id}/delete")
-def delete_project(item_id: int, session: SessionDep):
-    item = session.get(Project, item_id)
-    session.delete(item)
-    session.commit()
-    return RedirectResponse(url="/", status_code=303)
+def delete_project(
+    item_id: int, current_user: CurrentUserDep, session: SessionDep
+):
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+    _delete_owned(session, Project, item_id, current_user)
+    return RedirectResponse(url="/form", status_code=303)
 
 
 def _scoped(session: Session, model: type, user_id: int | None) -> list:
