@@ -141,12 +141,15 @@ class Info(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     first_name: str | None = None
     last_name: str | None = None
-    email: str | None = None
+    contact_email: str | None = None
     phone: str | None = None
     location: str | None = None
     linkedin: str | None = None
     github: str | None = None
-    user_id: int | None = Field(default=None, foreign_key="user.id")
+    # unique: a User has at most one Info row, enforced at the DB level as a
+    # backstop against the upsert's select-then-insert race (two concurrent
+    # first submits could otherwise both see "no existing row").
+    user_id: int | None = Field(default=None, foreign_key="user.id", unique=True)
 
 
 class Project(SQLModel, table=True):
@@ -164,17 +167,21 @@ def on_startup():
 
 @app.post("/skills")
 def create_skill(
+    current_user: CurrentUserDep,
     software: str | None = Form(None),
     level: str | None = Form(None),
     session: SessionDep = None,
 ):
-    session.add(Skill(software=software, level=level))
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+    session.add(Skill(software=software, level=level, user_id=current_user.id))
     session.commit()
     return RedirectResponse(url="/form", status_code=303)
 
 
 @app.post("/education")
 def create_education(
+    current_user: CurrentUserDep,
     school: str | None = Form(None),
     degree: str | None = Form(None),
     field_of_study: str | None = Form(None),
@@ -182,6 +189,8 @@ def create_education(
     end_year: int | None = Form(None),
     session: SessionDep = None,
 ):
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
     session.add(
         Education(
             school=school,
@@ -189,6 +198,7 @@ def create_education(
             field_of_study=field_of_study,
             start_year=start_year,
             end_year=end_year,
+            user_id=current_user.id,
         )
     )
     session.commit()
@@ -197,6 +207,7 @@ def create_education(
 
 @app.post("/professional_experience")
 def create_professional_experience(
+    current_user: CurrentUserDep,
     company: str | None = Form(None),
     position: str | None = Form(None),
     start_date: int | None = Form(None),
@@ -204,6 +215,8 @@ def create_professional_experience(
     description: str | None = Form(None),
     session: SessionDep = None,
 ):
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
     session.add(
         ProfessionalExperience(
             company=company,
@@ -211,6 +224,7 @@ def create_professional_experience(
             start_date=start_date,
             end_date=end_date,
             description=description,
+            user_id=current_user.id,
         )
     )
     session.commit()
@@ -219,49 +233,95 @@ def create_professional_experience(
 
 @app.post("/languages")
 def create_language(
+    current_user: CurrentUserDep,
     language_name: str | None = Form(None),
     level: str | None = Form(None),
     session: SessionDep = None,
 ):
-    session.add(Language(language_name=language_name, level=level))
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+    session.add(
+        Language(language_name=language_name, level=level, user_id=current_user.id)
+    )
     session.commit()
     return RedirectResponse(url="/form", status_code=303)
 
 
 @app.post("/info")
 def create_info(
+    current_user: CurrentUserDep,
     first_name: str | None = Form(None),
     last_name: str | None = Form(None),
-    email: str | None = Form(None),
+    contact_email: str | None = Form(None),
     phone: str | None = Form(None),
     location: str | None = Form(None),
     linkedin: str | None = Form(None),
     github: str | None = Form(None),
     session: SessionDep = None,
 ):
-    session.add(
-        Info(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            phone=phone,
-            location=location,
-            linkedin=linkedin,
-            github=github,
-        )
-    )
-    session.commit()
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+
+    # Upsert: a User has at most one Info row, so a second submit updates it
+    # in place instead of creating a duplicate.
+    info = session.exec(
+        select(Info).where(Info.user_id == current_user.id)
+    ).first()
+    is_new = info is None
+    if is_new:
+        info = Info(user_id=current_user.id)
+        session.add(info)
+
+    info.first_name = first_name
+    info.last_name = last_name
+    info.contact_email = contact_email
+    info.phone = phone
+    info.location = location
+    info.linkedin = linkedin
+    info.github = github
+
+    try:
+        session.commit()
+    except IntegrityError:
+        # Another request from the same User won a race against the SELECT
+        # above and inserted its own Info row first (e.g. a double-clicked
+        # submit). Fall back to updating that row instead of erroring out.
+        if not is_new:
+            raise
+        session.rollback()
+        info = session.exec(
+            select(Info).where(Info.user_id == current_user.id)
+        ).one()
+        info.first_name = first_name
+        info.last_name = last_name
+        info.contact_email = contact_email
+        info.phone = phone
+        info.location = location
+        info.linkedin = linkedin
+        info.github = github
+        session.commit()
+
     return RedirectResponse(url="/form", status_code=303)
 
 
 @app.post("/projects")
 def create_project(
+    current_user: CurrentUserDep,
     name_project: str | None = Form(None),
     description: str | None = Form(None),
     link: str | None = Form(None),
     session: SessionDep = None,
 ):
-    session.add(Project(name_project=name_project, description=description, link=link))
+    if (redirect := redirect_if_anonymous(current_user)) is not None:
+        return redirect
+    session.add(
+        Project(
+            name_project=name_project,
+            description=description,
+            link=link,
+            user_id=current_user.id,
+        )
+    )
     session.commit()
     return RedirectResponse(url="/form", status_code=303)
 
@@ -373,10 +433,23 @@ def logout(request: Request):
 
 
 @app.get("/form", response_class=HTMLResponse)
-def read_form(request: Request, current_user: CurrentUserDep):
+def read_form(request: Request, current_user: CurrentUserDep, session: SessionDep):
     if (redirect := redirect_if_anonymous(current_user)) is not None:
         return redirect
-    return templates.TemplateResponse(request, "form.html", context={})
+    return templates.TemplateResponse(
+        request,
+        "form.html",
+        context={
+            "info": _scoped(session, Info, current_user.id),
+            "education": _scoped(session, Education, current_user.id),
+            "professional_experience": _scoped(
+                session, ProfessionalExperience, current_user.id
+            ),
+            "skills": _scoped(session, Skill, current_user.id),
+            "languages": _scoped(session, Language, current_user.id),
+            "projects": _scoped(session, Project, current_user.id),
+        },
+    )
 
 
 @app.get("/", response_class=HTMLResponse)

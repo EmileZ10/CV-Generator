@@ -3,6 +3,7 @@
 from sqlmodel import Session, select
 
 from main import Education
+from tests.conftest import register_user
 
 
 def test_form_page_renders(client):
@@ -20,11 +21,20 @@ def test_home_page_renders(client):
 
 
 def test_create_education(client, session: Session):
+    register_user(client)
+
     response = client.post("/education", data={"school": "EPF", "degree": "Ing"})
     assert response.status_code == 200  # redirect to /form is followed
 
     rows = session.exec(select(Education)).all()
     assert [r.school for r in rows] == ["EPF"]
+
+
+def test_create_education_anonymous_redirects_to_login(client, session: Session):
+    response = client.post("/education", data={"school": "EPF"})
+    assert response.status_code == 200  # redirect to /login is followed
+    assert response.url.path == "/login"
+    assert session.exec(select(Education)).all() == []
 
 
 def test_delete_education_uses_post_route(client, session: Session):

@@ -35,3 +35,20 @@ def client_fixture(session: Session):
     # engine, which would open cv.db. Tests set up their own schema above.
     yield TestClient(app)
     app.dependency_overrides.clear()
+
+
+def register_user(client, **overrides):
+    """POST /register for a default valid user (any field overridable via kwargs).
+
+    /register logs the new user in, so the client's session cookie is
+    already set for that User afterwards. Returns the data posted, e.g. so a
+    caller can log back in later with the same login_email/password.
+    """
+    data = {
+        "login_email": "alice@example.com",
+        "password": "hunter2hunter2",
+        "username": "alice-dev",
+        **overrides,
+    }
+    client.post("/register", data=data)
+    return data

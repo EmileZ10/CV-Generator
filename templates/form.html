@@ -14,18 +14,27 @@
   <!-- 01 – Profil / Info -->
   <div class="card">
     <h2>01 — Profil</h2>
+    {% set i = info[0] if info else None %}
     <form action="/info" method="post">
       <div class="form-grid two">
-        <div class="field"><label>Prénom</label><input name="first_name" placeholder=" "/></div>
-        <div class="field"><label>Nom</label><input name="last_name" placeholder=" "/></div>
-        <div class="field full"><label>Localisation</label><input name="location" placeholder=" "/></div>
-        <div class="field"><label>Phone</label><input name="phone" placeholder=" "/></div>
-        <div class="field"><label>Email</label><input name="email" placeholder=" "/></div>
-        <div class="field full"><label>GitHub</label><input name="github" placeholder=" "/></div>
-        <div class="field full"><label>LinkedIn</label><input name="linkedin" placeholder=" "/></div>
+        <div class="field"><label>Prénom</label><input name="first_name" value="{{ i.first_name or '' if i else '' }}" placeholder=" "/></div>
+        <div class="field"><label>Nom</label><input name="last_name" value="{{ i.last_name or '' if i else '' }}" placeholder=" "/></div>
+        <div class="field full"><label>Localisation</label><input name="location" value="{{ i.location or '' if i else '' }}" placeholder=" "/></div>
+        <div class="field"><label>Phone</label><input name="phone" value="{{ i.phone or '' if i else '' }}" placeholder=" "/></div>
+        <div class="field"><label>Email de contact</label><input name="contact_email" value="{{ i.contact_email or '' if i else '' }}" placeholder=" "/></div>
+        <div class="field full"><label>GitHub</label><input name="github" value="{{ i.github or '' if i else '' }}" placeholder=" "/></div>
+        <div class="field full"><label>LinkedIn</label><input name="linkedin" value="{{ i.linkedin or '' if i else '' }}" placeholder=" "/></div>
       </div>
-      <button type="submit" class="btn-add">+ Ajouter</button>
+      <button type="submit" class="btn-add">{{ "Mettre à jour" if i else "+ Ajouter" }}</button>
     </form>
+    {% if i %}
+    <div class="pf-entry pf-btn-delete" style="margin-top:1rem">
+      <span class="pf-entry-title">{{ i.first_name }} {{ i.last_name }}</span>
+      <form action="/info/{{ i.id }}/delete" method="post">
+        <button type="submit" class="btn-delete">Supprimer</button>
+      </form>
+    </div>
+    {% endif %}
   </div>
 
   <!-- 02 – Experience -->
@@ -46,6 +55,23 @@
       </div>
       <button type="submit" class="btn-add">+ Ajouter</button>
     </form>
+    {% for exp in professional_experience %}
+    <div class="pf-entry" style="margin-top:1rem">
+      <div class="pf-entry-head">
+        <span class="pf-entry-title">{{ exp.position }}</span>
+        <div class="pf-btn-delete">
+          {% if exp.start_date or exp.end_date %}
+          <span class="pf-entry-dates">{{ exp.start_date or "" }} – {{ exp.end_date or "" }}</span>
+          {% endif %}
+          <form action="/professional_experience/{{ exp.id }}/delete" method="post">
+            <button type="submit" class="btn-delete">Supprimer</button>
+          </form>
+        </div>
+      </div>
+      {% if exp.company %}<div class="pf-entry-sub">{{ exp.company }}</div>{% endif %}
+      {% if exp.description %}<div class="pf-entry-desc">{{ exp.description }}</div>{% endif %}
+    </div>
+    {% endfor %}
   </div>
 
   <!-- 03 – Formation -->
@@ -63,6 +89,24 @@
       </div>
       <button type="submit" class="btn-add">+ Ajouter</button>
     </form>
+    {% for edu in education %}
+    <div class="pf-entry" style="margin-top:1rem">
+      <div class="pf-entry-head">
+        <span class="pf-entry-title">{{ edu.school }}</span>
+        <div class="pf-btn-delete">
+          {% if edu.start_year or edu.end_year %}
+          <span class="pf-entry-dates">{{ edu.start_year or "" }} – {{ edu.end_year or "" }}</span>
+          {% endif %}
+          <form action="/education/{{ edu.id }}/delete" method="post">
+            <button type="submit" class="btn-delete">Supprimer</button>
+          </form>
+        </div>
+      </div>
+      {% if edu.degree or edu.field_of_study %}
+      <div class="pf-entry-sub">{{ [edu.degree, edu.field_of_study] | select | join(" · ") }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
   </div>
 
   <!-- 04 – Compétences -->
@@ -82,6 +126,19 @@
       </div>
       <button type="submit" class="btn-add">+ Ajouter</button>
     </form>
+    {% if skills %}
+    <div class="pf-tags" style="margin-top:1rem">
+      {% for skill in skills %}
+      <span class="pf-tag">
+        {{ skill.software }}
+        {% if skill.level %}<span class="pf-tag-level">{{ skill.level }}</span>{% endif %}
+        <form action="/skills/{{ skill.id }}/delete" method="post" style="display:inline">
+          <button type="submit" class="btn-delete-tag">×</button>
+        </form>
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 
   <!-- 05 – Langues -->
@@ -100,6 +157,19 @@
       </div>
       <button type="submit" class="btn-add">+ Ajouter</button>
     </form>
+    {% if languages %}
+    <div class="pf-tags" style="margin-top:1rem">
+      {% for lang in languages %}
+      <span class="pf-tag">
+        {{ lang.language_name }}
+        {% if lang.level %}<span class="pf-tag-level">{{ lang.level }}</span>{% endif %}
+        <form action="/languages/{{ lang.id }}/delete" method="post" style="display:inline">
+          <button type="submit" class="btn-delete-tag">×</button>
+        </form>
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 
   <!-- 06 – Projets -->
@@ -113,6 +183,20 @@
       </div>
       <button type="submit" class="btn-add">+ Ajouter</button>
     </form>
+    {% for proj in projects %}
+    <div class="pf-entry" style="margin-top:1rem">
+      <div class="pf-entry-head">
+        <span class="pf-entry-title">{{ proj.name_project }}</span>
+        <div class="pf-btn-delete">
+          <form action="/projects/{{ proj.id }}/delete" method="post">
+            <button type="submit" class="btn-delete">Supprimer</button>
+          </form>
+        </div>
+      </div>
+      {% if proj.description %}<div class="pf-entry-desc">{{ proj.description }}</div>{% endif %}
+      {% if proj.link|safe_url %}<a class="pf-proj-link" href="{{ proj.link|safe_url }}">{{ proj.link }} →</a>{% endif %}
+    </div>
+    {% endfor %}
   </div>
 
   <div style="text-align:center;margin-top:2rem">
