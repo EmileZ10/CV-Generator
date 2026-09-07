@@ -11,6 +11,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from starlette.middleware.sessions import SessionMiddleware
 
+# CV-Generator: multi-user portfolio app
+
 def safe_url(value: str | None) -> str:
     """An http(s) URL as-is, or '' for anything else (blank, javascript:, data:, ...).
 
@@ -554,6 +556,7 @@ def read_portfolio(username: str, request: Request, session: SessionDep):
         request,
         "portfolio.html",
         context={
+            "username": user.username,
             "info": _scoped(session, Info, user.id),
             "education": _scoped(session, Education, user.id),
             "professional_experience": _scoped(
